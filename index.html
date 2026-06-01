@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Pictures</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+        }
+
+        a {
+            display: block;
+            padding: 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pictures</h1>
+    <div id="files">Loading...</div>
+
+    <script>
+        async function loadFiles() {
+            const response = await fetch('./');
+            const html = await response.text();
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            const files = [...doc.querySelectorAll('a')]
+                .map(a => a.getAttribute('href'))
+                .filter(href =>
+                    href &&
+                    !href.startsWith('?') &&
+                    href !== '../' &&
+                    /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(href)
+                );
+
+            const container = document.getElementById('files');
+
+            if (!files.length) {
+                container.textContent = 'No images found.';
+                return;
+            }
+
+            container.innerHTML = files
+                .sort()
+                .map(file => `<a href="${file}" target="_blank">${file}</a>`)
+                .join('');
+        }
+
+        loadFiles();
+    </script>
+</body>
+</html>
